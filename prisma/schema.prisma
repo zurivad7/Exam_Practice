@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id         String      @id @default(cuid())
+  name       String
+  filePath   String
+  pageCount  Int
+  uploadedAt DateTime    @default(now())
+  pages      Page[]
+  chunks     Chunk[]
+  sets       PracticeSet[]
+}
+
+model Page {
+  id         String   @id @default(cuid())
+  documentId String
+  number     Int
+  rawText    String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, number])
+}
+
+model Chunk {
+  id           String    @id
+  documentId   String
+  startPage    Int
+  endPage      Int
+  text         String
+  embedding    String
+  tokenEstimate Int
+  createdAt    DateTime  @default(now())
+  document     Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model PracticeSet {
+  id          String       @id @default(cuid())
+  documentId  String
+  title       String
+  mode        String
+  createdAt   DateTime     @default(now())
+  requested   Int
+  generated   Int
+  rejected    Int
+  resultJson  String
+  document    Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  attempts    Attempt[]
+}
+
+model Attempt {
+  id           String      @id @default(cuid())
+  setId        String
+  questionId   String
+  selected     Int
+  confidence   String
+  isCorrect    Boolean
+  set          PracticeSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+}

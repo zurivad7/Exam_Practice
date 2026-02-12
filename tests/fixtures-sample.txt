@@ -1,0 +1,1 @@
+Sample fixture content for retrieval tests. Replace with a real sample PDF in secure environments.
